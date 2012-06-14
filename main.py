@@ -7,10 +7,11 @@ from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 from pyramid.response import Response
 
+p2p_diff = mmpy.Chart('p2p daily releasegroups')
+
 def fetch_top_N_albums(topN):
-    p2p = mmpy.Chart('p2p daily releasegroups')
     mapped = []
-    for rank, val, relgrp in p2p.releasegroup:
+    for rank, val, relgrp in p2p_diff.releasegroup:
         try:
             if 'album' in relgrp.description.lower() or 'mixtape' in relgrp.description.lower():
                 res = spotimeta.search_album(relgrp.artist.name+' '+relgrp.name)
