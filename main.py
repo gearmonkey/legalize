@@ -11,13 +11,15 @@ from pyramid.config import Configurator
 from pyramid.response import Response
 
 p2p_diff = None
+metacache = {}
+metadata = spotimeta.Metadata(cache=metacache)
 
 def fetch_top_N_albums(topN):
     mapped = []
     for rank, val, relgrp in p2p_diff.releasegroup:
         try:
             if 'album' in relgrp.description.lower() or 'mixtape' in relgrp.description.lower():
-                res = spotimeta.search_album(relgrp.artist.name+' '+relgrp.name)
+                res = metadata.search_album(relgrp.artist.name+' '+relgrp.name)
                 mapped.append((rank, val, res['result'][0]))
         except IndexError:
             print "no album found for "+relgrp.name+" by "+relgrp.artist.name
@@ -27,6 +29,15 @@ def fetch_top_N_albums(topN):
     return mapped
     
     
+def ideal_pair(request):
+    """given either a song and an album, or two albums, determine the pair with the minimum timbrel distance, using echonest timbrel features (actually just random seleciton for the moment)"""
+    if 'spotify:album' in request.matchdict['first']:
+        #doing to way timbrel analysis
+        songs_A = []
+    else:
+        songs_A = []
+    #do the same with second album
+    #find minimum pair
 
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
@@ -38,7 +49,7 @@ def topN(request):
     
 def topNjson(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
-    return Response(simplejson.dumps({'result':albums}))
+    return Response(simplejson.dumps({'result':albums}, indent="  "))
 
 if __name__ == '__main__':
     config = Configurator()
