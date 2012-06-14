@@ -26,8 +26,11 @@ def fetch_top_N_albums(topN):
     
 
 def topN(request):
-    albums = fetch_top_N_albums(int(request.matchdict.get(topN, 10)))
-    doc_body = '<br/>'.join([album['name']+' by '+album['artist']['name'] for album in albums])
+    albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
+    doc_body = '<br/>'.join([u'<a href="{0}">{1} by {2}</a>'.format(album['href'],
+                                                                    album['name'].encode('utf8'),
+                                                                    album['artist']['name'])\
+                                                            for album in albums])
     return Response(doc_body)
     
 if __name__ == '__main__':
@@ -37,4 +40,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
     server = make_server('0.0.0.0', port, app)
+    print 'running on ', port
     server.serve_forever()   
