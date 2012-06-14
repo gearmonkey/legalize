@@ -1,3 +1,5 @@
+import os
+
 import mmpy
 import spotimeta
 
@@ -31,6 +33,7 @@ if __name__ == '__main__':
     config = Configurator()
     config.add_route('top', '/top/{topN}')
     config.add_view(topN, route_name='top')
+    port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
-    server = make_server('0.0.0.0', 8080, app)
+    server = make_server('0.0.0.0', port, app)
     server.serve_forever()   
