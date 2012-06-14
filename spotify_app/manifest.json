@@ -1,6 +1,6 @@
 {
 	"BundleType": "Application",
-	"BundleIdentifier": "Legalize It",
+	"BundleIdentifier": "legalize",
 	"AppIcon": {
 		"36x18": "legalize.png"
 	},
