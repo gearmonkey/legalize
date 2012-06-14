@@ -40,5 +40,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
     server = make_server('0.0.0.0', port, app)
+    print 'made server'
     p2p_diff = mmpy.Chart('p2p daily releasegroups')
+    print 'fetched chart'
     server.serve_forever()
