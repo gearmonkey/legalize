@@ -1,7 +1,10 @@
+# encoding: utf-8
 import os
+import simplejson
 
 import mmpy
 import spotimeta
+
 
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
@@ -15,7 +18,7 @@ def fetch_top_N_albums(topN):
         try:
             if 'album' in relgrp.description.lower() or 'mixtape' in relgrp.description.lower():
                 res = spotimeta.search_album(relgrp.artist.name+' '+relgrp.name)
-                mapped.append(res['result'][0])
+                mapped.append((rank, val, res['result'][0]))
         except IndexError:
             print "no album found for "+relgrp.name+" by "+relgrp.artist.name
             continue
@@ -27,10 +30,10 @@ def fetch_top_N_albums(topN):
 
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
-    doc_body = '<br/>'.join([u'<a href="{0}">{1} by {2}</a>'.format(album['href'],
-                                                                    album['name'].encode('utf8'),
-                                                                    album['artist']['name'])\
-                                                            for album in albums])
+    doc_body = '<br/>'.join([u'no°{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
+               album=album['name'].encode('utf8'),
+               artist=album['artist']['name'], 
+               peers=val) for rank, val, album in albums])
     return Response(doc_body)
     
 if __name__ == '__main__':
