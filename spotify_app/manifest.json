@@ -9,5 +9,8 @@
 	},
 	"SupportedLanguages": [
 		"en"
-	]
+	],
+	"RequiredPermissions": [
+    		"http://ws.audioscrobbler.com"
+    ]
 }
