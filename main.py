@@ -4,7 +4,7 @@ import simplejson
 
 import mmpy
 import spotimeta
-
+import pyechonest.song
 
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
@@ -31,14 +31,52 @@ def fetch_top_N_albums(topN):
     
 def ideal_pair(request):
     """given either a song and an album, or two albums, determine the pair with the minimum timbrel distance, using echonest timbrel features (actually just random seleciton for the moment)"""
-    if 'spotify:album' in request.matchdict['first']:
-        #doing to way timbrel analysis
+    itemA = request.matchdict['itemA']
+    itemB = request.matchdict['itemB']
+    feature = request.matchdict.get('feature', 'danceability')
+    
+    if 'spotify:album' in itemA:
+        #doing two way timbrel analysis
+        full_album_detail = metadata.lookup(itemA, detail=2)
         songs_A = []
+        for song in full_album_detail['result']['tracks']:
+            try:
+                res = pyechonest.song.search(title=song['name'], 
+                                             artist=song['artist']['name'], 
+                                             buckets="audio_summary")[0]
+            except IndexError:
+                print "couldn't get features for",song['name'],"by", song['artist']
+                continue
+            songs_A.append((song["href"], res.audio_summary[feature]))
     else:
-        songs_A = []
-    #do the same with second album
-    #find minimum pair
+        song = metadata.lookup(itemA)['result']
+        res = pyechonest.song.search(title=song['name'], 
+                                     artist=song['artist']['name'], 
+                                     buckets="audio_summary")[0]
+        songs_A = [(song["href"], res.audio_summary[feature])]
 
+    songs_B = []
+    full_album_detail = metadata.lookup(itemB, detail=2)
+    for song in full_album_detail['result']['tracks']:
+        try:
+            res = pyechonest.song.search(title=song['name'], 
+                                         artist=song['artist']['name'], 
+                                         buckets="audio_summary")[0]
+        except IndexError:
+            print "couldn't get features for",song['name'],"by", song['artist']
+            continue
+        songs_B.append((song["href"], res.audio_summary[feature]))
+    min_dist = abs(songs_A[0][1]-songs_B[0][1])
+    songA = songs_A[0]
+    songB = songs_B[0]
+    for idx,(uriA,feature_valueA) in enumerate(songs_A):
+        for jdx,(uriB,feature_valueB) in enumerate(songs_B):
+            if abs(feature_valueA-feature_valueB) < min_dist:
+                songA = songs_A[idx]
+                songB = songs_B[jdx]
+          
+    return Response(simplejson.dumps({'result':[songA, songB]}))
+        
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
     doc_body = '<br/>'.join([u'no°{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
@@ -56,10 +94,15 @@ if __name__ == '__main__':
     config.add_route('index', '')
     config.add_route('topjson', '/top/{topN}.json')
     config.add_route('top', '/top/{topN}')
+    config.add_route('paired', '/paired/{itemA}/{itemB}')
+    config.add_route('pairedby', '/paired/{itemA}/{itemB}/{feature}')
     
     config.add_view(topN, route_name='top')
     config.add_view(topN, route_name='index')
     config.add_view(topNjson, route_name='topjson')
+    config.add_view(ideal_pair, route_name='paired')
+    config.add_view(ideal_pair, route_name='pairedby')
+    
     port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
     server = make_server('0.0.0.0', port, app)
