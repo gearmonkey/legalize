@@ -2,7 +2,9 @@
 	"BundleType": "Application",
 	"BundleIdentifier": "legalize",
 	"AppIcon": {
-		"36x18": "legalize.png"
+		"18x18": "img/legalize_icn_sm.png"
+		"64x64": "img/legalize_icn_med.png"
+	    "128x128": "img/legalize_icn_lrg.png"
 	},
 	"AppName": {
 		"en": "Legalize It"
@@ -11,6 +13,6 @@
 		"en"
 	],
 	"RequiredPermissions": [
-    		"http://ws.audioscrobbler.com"
+    		"http://legalize-it.herokuapp.com/"
     ]
 }
