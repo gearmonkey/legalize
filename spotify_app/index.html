@@ -18,22 +18,39 @@
                 var sp = getSpotifyApi(1);
                 var models = sp.require("sp://import/scripts/api/models");
                 var views = sp.require("sp://import/scripts/api/views");
+				
+				var tempPlaylist = new models.Playlist();
+				
+                /* Fetch Albums */
+                $.getJSON('http://legalize-it.herokuapp.com/top/25',
+				function(data){
+					/*seed playlist with first to tracks, then run the rest async*/
+					var base_url = 'http://legalize-it.herokuapp.com/paired/';
+					$.getJSON(base_url+data.response[0][2].href +'/'+data.response[1][2].href,
+					funcion(songpair){
+						var last_song_uri = songpair.response[0][0]
+						var track = models.Track.fromURI(last_song_uri)
+						tempPlaylist.add(track);
+						var this_song_uri = songpair.response[1][0]
+						track = models.Track.fromURI(this_song_uri)
+						tempPlaylist.add(track);
+					});
+					/* Create a "view" for the playlist and pass the list
+	                 * code to the #player <div /> */
+	                var playlist = new views.List(tempPlaylist);
+	                $('#player').append(playlist.node);
+					for(var i=1;i<25;i++) {
+						/*do the pull for each album in the list, then update the playlist*/
+					}
+				});
 
-                /* Create an array of tracks from the user's library */
-                var tracks = models.library.tracks;
-
-                /* Create a temporary playlist and fill it with tracks
-                 * from the previous query */
-                var tempPlaylist = new models.Playlist();
+                
                 for(var i=0;i<20;i++) {
                     var track = models.Track.fromURI(tracks[i].data.uri);
                     tempPlaylist.add(track);
                 }
 
-                /* Create a "view" for the playlist and pass the list
-                 * code to the #player <div /> */
-                var playlist = new views.List(tempPlaylist);
-                $('#player').append(playlist.node);
+                
             });
         </script>
     </head>
