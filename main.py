@@ -40,5 +40,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
     server = make_server('0.0.0.0', port, app)
-    print 'running on ', port
     server.serve_forever()   
