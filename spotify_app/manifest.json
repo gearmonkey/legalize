@@ -1,0 +1,13 @@
+{
+	"BundleType": "Application",
+	"BundleIdentifier": "Legalize It",
+	"AppIcon": {
+		"36x18": "legalize.png"
+	},
+	"AppName": {
+		"en": "Legalize It"
+	},
+	"SupportedLanguages": [
+		"en"
+	]
+}
