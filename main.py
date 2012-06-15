@@ -83,10 +83,34 @@ def ideal_pair(request):
         
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
-    doc_body = '<br/>'.join([u'no°{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
+    album_chart = u'<br/>'.join([u'no°{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
                album=album['name'].encode('utf8'),
                artist=album['artist']['name'], 
                peers=val) for rank, val, album in albums])
+    doc_body = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" 
+    "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Popular Albums on Bittorrent -- Resolved to Spotify</title>
+        <meta name="author" content="Benjamin Fields">
+    </head>
+    <body>
+        <a href="https://github.com/gearmonkey/legalize"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
+        <div class="chart" style="margin:10px auto 10px auto; width:800px">
+            <h2 style="text-align:center;">Popular Albums on Bittorrent -- Resolved to Spotify</h2>
+            <br />
+            '''+album_chart+'''
+            </div>
+            <div id="footer" style="position:fixed;bottom:0;width:100%">
+                <a href="http://developer.echoest.com"><img src="http://the.echonest.com/media/images/logos/EN_P_on_Black.gif" style="float:left;margin-bottom:6px;"/></a>
+                <a href="http://developer.musicmetric.com"><img src="http://developer.musicmetric.com/_static/musicmetric.png" style="float:right; background-color:#484848; padding:4px; margin-right:30px; margin-top:6px;" /></a>
+            </div>
+        
+    </body>
+</html>
+    '''
     return Response(doc_body)
     
 def topNjson(request):
