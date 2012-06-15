@@ -75,7 +75,7 @@ def ideal_pair(request):
                 songA = songs_A[idx]
                 songB = songs_B[jdx]
           
-    return Response(simplejson.dumps({'response':[songA, songB]}))
+    return Response(simplejson.dumps({'response':[songA, songB]}), content_type='application/json')
         
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
@@ -87,7 +87,7 @@ def topN(request):
     
 def topNjson(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
-    return Response(simplejson.dumps({'response':albums}, indent="  "))
+    return Response(simplejson.dumps({'response':albums}, indent="  "), content_type='application/json')
 
 if __name__ == '__main__':
     config = Configurator()
