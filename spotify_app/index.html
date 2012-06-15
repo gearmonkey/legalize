@@ -34,11 +34,11 @@
 				    var base_url = 'http://legalize-it.herokuapp.com/paired/';
 	                var playlist = new views.List(tempPlaylist);
 	                var albums = data.response;
-	                for(var i=0;i<25;i++) {
-                        var album = models.Album.fromURI(albums[i].href);
-                        tempPlaylist.add(album);
-                    }
-                    $('#player').append(playlist.node);
+                    // for(var i=0;i<25;i++) {
+                    //                         var album = models.Album.fromURI(albums[i][2].href);
+                    //                         tempPlaylist.add(album);
+                    //                     }
+                    // $('#player').append(playlist.node);
                     $.getJSON(base_url+data.response[0][2].href +'/'+data.response[1][2].href,
                     function(songpair) {
                      last_song_uri = songpair.response[0][0];
