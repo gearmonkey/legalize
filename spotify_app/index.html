@@ -55,6 +55,10 @@
                         this_song_uri = songpair.response[1][0];
                         track = models.Track.fromURI(this_song_uri);
                         tempPlaylist.add(track);
+                        var player = new views.Player();
+                        player.track = tempPlaylist.get(0);
+                        player.context = tempPlaylist;
+                        $('#player').append(player.node);
                         $('#player').append(playlist.node);
                         grab_next_song_until(this_song_uri, albums, 2, 25);
                     });
