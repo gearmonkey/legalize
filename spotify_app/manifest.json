@@ -13,6 +13,8 @@
 		"en"
 	],
 	"RequiredPermissions": [
-    		"http://legalize-it.herokuapp.com/"
+    		"http://legalize-it.herokuapp.com/",
+    		"*.musicmetric.com",
+    		"*.echonest.com"
     ]
 }

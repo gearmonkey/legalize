@@ -58,7 +58,7 @@
                         var player = new views.Player();
                         player.track = tempPlaylist.get(0);
                         player.context = tempPlaylist;
-                        $('#player').append(player.node);
+                        // $('#player').append(player.node);
                         $('#player').append(playlist.node);
                         grab_next_song_until(this_song_uri, albums, 2, 25);
                     });
@@ -97,8 +97,12 @@
             <h1>Legalize It!</h1>
             <p class="description">Listen to the most popular tracks on bittorrent. Stay up to date on all the latest trends among pirates, without leaving the comfort of your subscription service.</p>
 
-            <h3>Current Playlist</h3>
+            <h3>Most Unique Peers on Bittorrent Yesterday:</h3>
             <div id="player"></div>
+            <div id="footer" style='position:fixed;bottom:0;width:100%'>
+                <img src='img/EN_P_on_Black.gif' style='float:left;margin-bottom:6px;'/>
+                <img src='img/musicmetric.png' style='float:right; background-color:#484848; padding:4px; margin-right:30px; margin-top:6px;' />
+            </div>
         </div><!-- /wrapper -->
     </body>
 </html>
