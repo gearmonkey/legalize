@@ -63,7 +63,8 @@ def ideal_pair(request):
                                          artist=song['artist']['name'], 
                                          buckets="audio_summary")[0]
         except IndexError:
-            print u"couldn't get features for",song['name'].encode('utf8'),u"by", song['artist'].encode('utf8')
+            print u"couldn't get features for",song['name'].encode('utf8'),
+            print u"by", song['artist']['name'].encode('utf8')
             continue
         songs_B.append((song["href"], res.audio_summary[feature]))
     min_dist = abs(songs_A[0][1]-songs_B[0][1])
