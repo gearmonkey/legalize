@@ -20,11 +20,22 @@
                 var views = sp.require("sp://import/scripts/api/views");
 				
 				var tempPlaylist = new models.Playlist();
-				
-				var last_song_uri = "";
-    			var this_song_uri = "";
-    			function grab_next_song_until(last_song_uri, this_album_uri, idx, cap) {
-                    
+                var playlist = new views.List(tempPlaylist);
+    			
+    			function grab_next_song_until(last_song_uri, albums, idx, cap) {
+    			    var base_url = 'http://legalize-it.herokuapp.com/paired/';
+                    $.getJSON(base_url+last_song_uri +'/'+albums[idx][2].href,
+                       function(anothersong){
+                           var this_song_uri = anothersong.response[1][0];
+                           var track = models.Track.fromURI(this_song_uri);
+                           tempPlaylist.add(track);
+                           $('#player').empty();
+                           $('#player').append(playlist.node);
+                           if (idx < cap-1) {
+                               idx++;
+                               grab_next_song_until(this_song_uri, albums,idx,cap);
+                           }
+                   });
     			}
                 
                 /* Fetch Albums */
@@ -32,38 +43,38 @@
 				function(data){
 					/*seed playlist with first to tracks, then run the rest async*/
 				    var base_url = 'http://legalize-it.herokuapp.com/paired/';
-	                var playlist = new views.List(tempPlaylist);
 	                var albums = data.response;
-                    // for(var i=0;i<25;i++) {
-                    //                         var album = models.Album.fromURI(albums[i][2].href);
-                    //                         tempPlaylist.add(album);
-                    //                     }
-                    // $('#player').append(playlist.node);
+                    var last_song_uri = "";
+        			var this_song_uri = "";
+                    
                     $.getJSON(base_url+data.response[0][2].href +'/'+data.response[1][2].href,
                     function(songpair) {
-                     last_song_uri = songpair.response[0][0];
-                     var track = models.Track.fromURI(last_song_uri);
-                     tempPlaylist.add(track);
-                     this_song_uri = songpair.response[1][0];
-                     track = models.Track.fromURI(this_song_uri);
-                     tempPlaylist.add(track);
-                                         $('#player').append(playlist.node);
+                        last_song_uri = songpair.response[0][0];
+                        var track = models.Track.fromURI(last_song_uri);
+                        tempPlaylist.add(track);
+                        this_song_uri = songpair.response[1][0];
+                        track = models.Track.fromURI(this_song_uri);
+                        tempPlaylist.add(track);
+                        $('#player').append(playlist.node);
+                        grab_next_song_until(this_song_uri, albums, 2, 25);
                     });
+                    
+
                     /* Create a "view" for the playlist and pass the list
                                       * code to the #player <div /> */
                     
                     
-                    for(var i=2;i<25;i++) {
-                     /*do the pull for each album in the list, then update the playlist*/
-                     $.getJSON(base_url+this_song_uri +'/'+data.response[i][2].href,
-                         function(anothersong){
-                             this_song_uri = anothersong.response[1][0];
-                             var track = models.Track.fromURI(this_song_uri);
-                             tempPlaylist.add(track);
-                             // $('#player').empty();
-                             // $('#player').append(playlist.node);
-                     }); 
-                    }
+                    // for(var i=2;i<25;i++) {
+                    //  /*do the pull for each album in the list, then update the playlist*/
+                    //  $.getJSON(base_url+this_song_uri +'/'+data.response[i][2].href,
+                    //      function(anothersong){
+                    //          this_song_uri = anothersong.response[1][0];
+                    //          var track = models.Track.fromURI(this_song_uri);
+                    //          tempPlaylist.add(track);
+                    //          $('#player').empty();
+                    //          $('#player').append(playlist.node);
+                    //  }); 
+                    // }
 				});
 
                 
