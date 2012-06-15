@@ -77,7 +77,8 @@ def ideal_pair(request):
           
     return Response(simplejson.dumps({'response':[songA, songB]}), content_type='application/json',
                     headers={'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Request-Headers': 'x-requested-with'})
+                             'Access-Control-Request-Headers': 'x-requested-with',
+                             'Access-Control-Allow-Methods':'GET'})
         
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
@@ -91,7 +92,8 @@ def topNjson(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
     return Response(simplejson.dumps({'response':albums}, indent="  "), content_type='application/json', 
                     headers={'Access-Control-Allow-Origin':'*',
-                            'Access-Control-Request-Headers': 'x-requested-with'})
+                             'Access-Control-Request-Headers': 'x-requested-with',
+                             'Access-Control-Allow-Methods':'GET'})
 
 if __name__ == '__main__':
     config = Configurator()
