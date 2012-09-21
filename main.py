@@ -157,7 +157,7 @@ def tomahkN(request):
         <div class="chart" style="margin:10px auto 10px auto; width:800px">
             <h2 style="text-align:center;">Popular {rel_type} Today on Bittorrent -- Resolved via <a href="http://toma.hk/" target=_BLANK>tomahawk</a></h2>
             <br />
-            '''+chart+'''
+            '''.format(rel_type=rel_type+'s') +chart+'''
             </div>
             <div id="footer" style="position:fixed;bottom:0;width:100%">
                 <a href="http://developer.echoest.com"><img src="http://the.echonest.com/media/images/logos/EN_P_on_Black.gif" style="float:left;margin-bottom:6px;"/></a>
@@ -167,7 +167,6 @@ def tomahkN(request):
     </body>
 </html>
     '''
-    doc_body.format(rel_type=rel_type+'s')
     return Response(doc_body)
     
 def topNjson(request):
