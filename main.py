@@ -128,7 +128,7 @@ def tomahkN(request):
     rel_type = request.matchdict.get('rel_type', 10)
     if rel_type in ('albums', 'album'):
         releases = fetch_top_N_albums(int(request.matchdict.get('topN', 10)), spotify=False)
-    chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, uri=album['href'], 
+    chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, 
                                             release=album['name'].encode('utf8'),
                                             artist=album['artist']['name'], 
                                             peers=val) for idx, (rank, val, album) in enumerate(releases)])
