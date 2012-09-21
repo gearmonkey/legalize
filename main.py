@@ -15,18 +15,24 @@ p2p_diff = None
 metacache = {}
 metadata = spotimeta.Metadata(cache=metacache)
 
-def fetch_top_N_albums(topN):
-    by_album = fetch_top_N_by_rel_type(topN, 'album')
-    by_mixtape = fetch_top_N_by_rel_type(topN, 'mixtape')
+def fetch_top_N_albums(topN, spotify=True):
+    by_album = fetch_top_N_by_rel_type(topN, 'album', spotify)
+    max_rank = by_album[-1][0]
+    by_mixtape = fetch_top_N_by_rel_type(topN, 'mixtape', spotify=spotify, max_rank=max_rank)
     return sorted(by_album+by_mixtape, key=itemgetter(0))[:topN]
     
-def fetch_top_N_by_rel_type(topN, rel_type):
+def fetch_top_N_by_rel_type(topN, rel_type, spotify=True, max_rank=None):
     mapped = []
     for rank, val, relgrp in p2p_diff.releasegroup:
+        if max_rank != None and rank > max_rank:
+            break
         try:
             if rel_type in relgrp.description.lower():
-                res = metadata.search_album(relgrp.artist.name+' '+relgrp.name)
-                mapped.append((rank, val, res['result'][0]))
+                if spotify:
+                    res = metadata.search_album(relgrp.artist.name+' '+relgrp.name)
+                    mapped.append((rank, val, res['result'][0]))
+                else:
+                    mapped.append((rank, val, {'name':relgrp.name, 'artist':{'name':relgrp.artist.name}}))
         except IndexError:
             print "no album found for "+relgrp.name+" by "+relgrp.artist.name
             continue
@@ -119,12 +125,13 @@ def topN(request):
     return Response(doc_body)
     
 def tomahkN(request):
-    albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
     rel_type = request.matchdict.get('rel_type', 10)
-    album_chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, uri=album['href'], 
+    if rel_type in ('albums', 'album'):
+        releases = fetch_top_N_albums(int(request.matchdict.get('topN', 10)), spotify=False)
+    chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, uri=album['href'], 
                                             release=album['name'].encode('utf8'),
                                             artist=album['artist']['name'], 
-                                            peers=val) for idx, (rank, val, album) in enumerate(albums)])
+                                            peers=val) for idx, (rank, val, album) in enumerate(releases)])
     doc_body = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" 
     "http://www.w3.org/TR/html4/strict.dtd">
 
@@ -139,7 +146,7 @@ def tomahkN(request):
         <div class="chart" style="margin:10px auto 10px auto; width:800px">
             <h2 style="text-align:center;">Popular Albums Today on Bittorrent -- Resolved via tomahawk</h2>
             <br />
-            '''+album_chart+'''
+            '''+chart+'''
             </div>
             <div id="footer" style="position:fixed;bottom:0;width:100%">
                 <a href="http://developer.echoest.com"><img src="http://the.echonest.com/media/images/logos/EN_P_on_Black.gif" style="float:left;margin-bottom:6px;"/></a>
