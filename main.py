@@ -1,6 +1,7 @@
 # encoding: utf-8
 import os
 import simplejson
+from operator import itemgetter
 
 import mmpy
 import spotimeta
@@ -15,10 +16,15 @@ metacache = {}
 metadata = spotimeta.Metadata(cache=metacache)
 
 def fetch_top_N_albums(topN):
+    by_album = fetch_top_N_by_rel_type(topN, 'album')
+    by_mixtape = fetch_top_N_by_rel_type(topN, 'mixtape')
+    return sorted(by_album+by_mixtape, key=itemgetter(0))[:topN]
+    
+def fetch_top_N_by_rel_type(topN, rel_type):
     mapped = []
     for rank, val, relgrp in p2p_diff.releasegroup:
         try:
-            if 'album' in relgrp.description.lower() or 'mixtape' in relgrp.description.lower():
+            if rel_type in relgrp.description.lower():
                 res = metadata.search_album(relgrp.artist.name+' '+relgrp.name)
                 mapped.append((rank, val, res['result'][0]))
         except IndexError:
@@ -27,7 +33,6 @@ def fetch_top_N_albums(topN):
         if len(mapped) >= topN:
             break
     return mapped
-    
     
 def ideal_pair(request):
     """given either a song and an album, or two albums, determine the pair with the minimum timbrel distance, using echonest timbrel features (actually just random seleciton for the moment)"""
@@ -126,13 +131,13 @@ def tomahkN(request):
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Popular Albums on Bittorrent -- Resolved via tomahawk</title>
+        <title>Popular Albums Today on Bittorrent -- Resolved via tomahawk</title>
         <meta name="author" content="Benjamin Fields">
     </head>
     <body>
         <a href="https://github.com/gearmonkey/legalize"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
         <div class="chart" style="margin:10px auto 10px auto; width:800px">
-            <h2 style="text-align:center;">Popular Albums on Bittorrent -- Resolved via tomahawk</h2>
+            <h2 style="text-align:center;">Popular Albums Today on Bittorrent -- Resolved via tomahawk</h2>
             <br />
             '''+album_chart+'''
             </div>
