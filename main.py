@@ -149,13 +149,13 @@ def tomahkN(request):
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Popular Albums Today on Bittorrent -- Resolved via <a href="http://toma.hk/" target=_BLANK>tomahawk</a></title>
+        <title>Popular Albums Today on Bittorrent -- Resolved via tomahawk</title>
         <meta name="author" content="Benjamin Fields">
     </head>
     <body>
         <a href="https://github.com/gearmonkey/legalize"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
         <div class="chart" style="margin:10px auto 10px auto; width:800px">
-            <h2 style="text-align:center;">Popular Albums Today on Bittorrent -- Resolved via tomahawk</h2>
+            <h2 style="text-align:center;">Popular {rel_type} Today on Bittorrent -- Resolved via <a href="http://toma.hk/" target=_BLANK>tomahawk</a></h2>
             <br />
             '''+chart+'''
             </div>
@@ -167,6 +167,7 @@ def tomahkN(request):
     </body>
 </html>
     '''
+    doc_body.format(rel_type=rel_type+'s')
     return Response(doc_body)
     
 def topNjson(request):
