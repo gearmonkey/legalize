@@ -2,6 +2,7 @@
 import os
 import simplejson
 from operator import itemgetter
+from urllib import quote as urlquote
 
 import mmpy
 import spotimeta
@@ -125,20 +126,30 @@ def topN(request):
     return Response(doc_body)
     
 def tomahkN(request):
-    rel_type = request.matchdict.get('rel_type', 10)
-    if rel_type in ('albums', 'album'):
+    rel_type = request.matchdict.get('rel_type', 10).strip('s')
+    if rel_type is'album':
         releases = fetch_top_N_albums(int(request.matchdict.get('topN', 10)), spotify=False)
-    chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, 
-                                            release=album['name'].encode('utf8'),
-                                            artist=album['artist']['name'], 
-                                            peers=val) for idx, (rank, val, album) in enumerate(releases)])
+        chart = u'<br/>'.join([u'''Nº{rank} on the {rel_type} chart, with {peers} unique peers today:<br/>
+            <iframe src="http://toma.hk/album/{artist}/{release}?embed=true" 
+            width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'''.format(rank=idx+1, 
+                                                release=urlquote(album['name'].encode('utf8')),
+                                                artist=urlquote(album['artist']['name']), 
+                                                peers=val, rel_type=rel_type) for idx, (rank, val, album) in enumerate(releases)])
+    else:
+        releases = fetch_top_N_by_rel_type(int(request.matchdict.get('topN', 10)), rel_type, spotify=False)
+        chart = u'<br/>'.join([u'''Nº{rank} on the {rel_type} chart, with {peers} unique peers today:<br/>
+        <iframe src="http://toma.hk/embed.php?artist={artist}&title={release}" 
+        width="200" scrolling="no" height="200" frameborder="0" allowtransparency="true" ></iframe>'''.format(rank=idx+1, 
+                                                release=urlquote(album['name'].encode('utf8')),
+                                                artist=urlquote(album['artist']['name']), 
+                                                peers=val, rel_type=rel_type) for idx, (rank, val, album) in enumerate(releases)])
     doc_body = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" 
     "http://www.w3.org/TR/html4/strict.dtd">
 
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Popular Albums Today on Bittorrent -- Resolved via tomahawk</title>
+        <title>Popular Albums Today on Bittorrent -- Resolved via <a href="http://toma.hk/" target=_BLANK>tomahawk</a></title>
         <meta name="author" content="Benjamin Fields">
     </head>
     <body>
