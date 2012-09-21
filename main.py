@@ -126,8 +126,8 @@ def topN(request):
     return Response(doc_body)
     
 def tomahkN(request):
-    rel_type = request.matchdict.get('rel_type', 10).strip('s')
-    if rel_type is'album':
+    rel_type = request.matchdict.get('rel_type', 10).rstrip('s')
+    if rel_type == 'album':
         releases = fetch_top_N_albums(int(request.matchdict.get('topN', 10)), spotify=False)
         chart = u'<br/>'.join([u'''Nº{rank} on the {rel_type} chart, with {peers} unique peers today:<br/>
             <iframe src="http://toma.hk/album/{artist}/{release}?embed=true" 
