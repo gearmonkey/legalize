@@ -83,7 +83,7 @@ def ideal_pair(request):
         
 def topN(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
-    album_chart = u'<br/>'.join([u'no°{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
+    album_chart = u'<br/>'.join([u'Nº{rank}: <a href="{uri}">{album} by {artist}</a> with {peers} unique peers today.'.format(rank=rank, uri=album['href'], 
                album=album['name'].encode('utf8'),
                artist=album['artist']['name'], 
                peers=val) for rank, val, album in albums])
@@ -113,6 +113,39 @@ def topN(request):
     '''
     return Response(doc_body)
     
+def tomahkN(request):
+    albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
+    rel_type = request.matchdict.get('rel_type', 10)
+    album_chart = u'<br/>'.join([u'Nº{rank} on the release chart, with {peers} unique peers today:<br/><iframe src="http://toma.hk/album/{artist}/{release}?embed=true" width="550" height="430" scrolling="no" frameborder="0" allowtransparency="true" ></iframe>'.format(rank=idx+1, uri=album['href'], 
+                                            release=album['name'].encode('utf8'),
+                                            artist=album['artist']['name'], 
+                                            peers=val) for idx, (rank, val, album) in enumerate(albums)])
+    doc_body = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" 
+    "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Popular Albums on Bittorrent -- Resolved via tomahawk</title>
+        <meta name="author" content="Benjamin Fields">
+    </head>
+    <body>
+        <a href="https://github.com/gearmonkey/legalize"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
+        <div class="chart" style="margin:10px auto 10px auto; width:800px">
+            <h2 style="text-align:center;">Popular Albums on Bittorrent -- Resolved via tomahawk</h2>
+            <br />
+            '''+album_chart+'''
+            </div>
+            <div id="footer" style="position:fixed;bottom:0;width:100%">
+                <a href="http://developer.echoest.com"><img src="http://the.echonest.com/media/images/logos/EN_P_on_Black.gif" style="float:left;margin-bottom:6px;"/></a>
+                <a href="http://developer.musicmetric.com"><img src="http://developer.musicmetric.com/_static/musicmetric.png" style="float:right; background-color:#484848; padding:4px; margin-right:30px; margin-top:6px;" /></a>
+            </div>
+
+    </body>
+</html>
+    '''
+    return Response(doc_body)
+    
 def topNjson(request):
     albums = fetch_top_N_albums(int(request.matchdict.get('topN', 10)))
     return Response(simplejson.dumps({'response':albums}, indent="  "), content_type='application/json', 
@@ -127,12 +160,15 @@ if __name__ == '__main__':
     config.add_route('top', '/top/{topN}')
     config.add_route('paired', '/paired/{itemA}/{itemB}')
     config.add_route('pairedby', '/paired/{itemA}/{itemB}/{feature}')
+    #tomahawk routes
+    config.add_route('tomahkN', '/tomahkN/{rel_type}/{topN}')
     
     config.add_view(topN, route_name='top')
     config.add_view(topN, route_name='index')
     config.add_view(topNjson, route_name='topjson')
     config.add_view(ideal_pair, route_name='paired')
     config.add_view(ideal_pair, route_name='pairedby')
+    config.add_view(tomahkN, route_name='tomahkN')
     
     port = int(os.environ.get('PORT', 5000))
     app = config.make_wsgi_app()
